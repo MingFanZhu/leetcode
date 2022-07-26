@@ -81,8 +81,8 @@
  * @return {number}
  */
 var shipWithinDays = function(weights, days) {
-    var left=0;
-    var right=weights[weights.length-1]+1;
+    var left=Math.max(...weights);
+    var right=weights.reduce((a,b)=>a+b);
 
     //单调递减
     while(left<right){
@@ -106,8 +106,7 @@ function target(weight,weights){
     for(var i=0;i<weights.length;i++){
         currentWeight+=weights[i];
         if(currentWeight>weight){
-            i--;
-            currentWeight=0;
+            currentWeight=weights[i];
             days++;
         }
     }
