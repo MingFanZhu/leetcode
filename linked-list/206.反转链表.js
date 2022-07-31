@@ -79,5 +79,17 @@ var reverseList = function(head) {
     }
     return pre;
 };
+
+//递归的做法
+var reverseList2=function(head){
+    if(head==null||head.next==null){
+        return head;
+    }
+
+    var newHead=reverseList2(head.next);
+    head.next.next=head;
+    head.next=null;
+    return newHead;
+}
 // @lc code=end
 
