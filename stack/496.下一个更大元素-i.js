@@ -68,7 +68,7 @@
  * @return {number[]}
  */
 var nextGreaterElement = function(nums1, nums2) {
-
+    //使用单调栈来存储nums2每个元素右侧的更大元素
 };
 // @lc code=end
 
