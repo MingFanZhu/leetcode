@@ -67,8 +67,33 @@
  * @param {number[]} nums2
  * @return {number[]}
  */
-var nextGreaterElement = function(nums1, nums2) {
+var nextGreaterElement = function (nums1, nums2) {
     //使用单调栈来存储nums2每个元素右侧的更大元素
+    var stack = new Array();
+    var map = new Map();
+
+    for (var i = nums2.length - 1; i >= 0; i--) {
+        while (stack.length != 0 && stack[stack.length - 1] < nums2[i]) {
+            stack.pop();
+        }
+        var bigger = -1;
+        if (stack.length != 0) {
+            bigger = stack[stack.length - 1];
+        }
+        map.set(nums2[i], bigger);
+        stack.push(nums2[i]);
+    }
+
+    var res = new Array();
+    for (var item of nums1) {
+        res.push(map.get(item));
+    }
+
+    return res;
 };
 // @lc code=end
 
+
+// @after-stub-for-debug-begin
+module.exports = nextGreaterElement;
+// @after-stub-for-debug-end
