@@ -69,109 +69,73 @@
  */
 
 // @lc code=start
-/**
- * @param {number} capacity
- */
+function node(key, value) {
+    this.key = key ? key : null;
+    this.value = value ? value : null;
+    this.prev = null;
+    this.next = null;
+}
+
 var LRUCache = function (capacity) {
     //一个双向链表按时间序列存储
     //一个map存储结点的引用
     this.capacity = capacity;
     this.length = 0;
-    this.cache = new Cache();
-    this.map = new Map();
+    this.map ={};
+
+    this.head = new node();
+    this.tail = new node();
+    this.head.next = this.tail;
+    this.tail.prev = this.head;
 };
 
-function Cache() {
-    this.head = null;
-    this.last = this.head;
+LRUCache.prototype.headInsert = function (key, value) {
+    var tmp = this.head.next;
+    this.head.next = new node(key, value);
+    this.head.next.prev = this.head;
+    this.head.next.next = tmp;
+    tmp.prev = this.head.next;
+    ++this.length;
+    return this.head.next;
 }
 
-Cache.prototype.unshift = function (key, value) {
-    var node = new CacheNode(key, value);
-    if (this.head == null) {
-        //初始化
-        this.head = node;
-        this.last = node;
-    } else {
-        node.next = this.head;
-        this.head.before = node;
-        this.head = node;
-    }
-    return node;
+LRUCache.prototype.moveToHead = function (node) {
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+
+    var tmp = this.head.next;
+    this.head.next = node;
+    node.prev = this.head;
+    node.next = tmp;
+    tmp.prev = node;
 }
 
-Cache.prototype.update = function (node, value) {
-    node.value = value;
-    if (node == this.head) {
-        return;
-    }
-    if (node == this.last) {
-        this.last = this.last.before;
-        node.before.next = null;
-        node.before = null;
-        node.next = this.head;
-        this.head.before = node;
-        this.head = node;
-    } else {
-        node.before.next = node.next;
-        node.next.before = node.before;
-        node.before = null;
-        node.next = this.head;
-        this.head.before = node;
-        this.head = node;
-    }
-}
-
-Cache.prototype.pop = function () {
-    var node = this.last;
-    if (this.last == this.head) {
-        this.last = null;
-        this.head = null;
-    } else {
-        this.last = this.last.before;
-        this.last.next = null;
-    }
-    return node;
-}
-
-function CacheNode(key, value) {
-    this.key = key ? key : null;
-    this.value = value ? value : null;
-    this.next = null;
-    this.before = null;
-}
-
-/** 
- * @param {number} key
- * @return {number}
- */
 LRUCache.prototype.get = function (key) {
-    if (this.map.has(key)) {
-        var node = this.map.get(key);
-        this.cache.update(node, node.value);//为了把node提前
+    if (this.map[key]) {
+        var node = this.map[key];
+        this.moveToHead(node);//为了把node提前
         return node.value;
     }
     return -1;
 };
 
-/** 
- * @param {number} key 
- * @param {number} value
- * @return {void}
- */
 LRUCache.prototype.put = function (key, value) {
-    if (this.map.has(key)) {
-        var node = this.map.get(key);
-        this.cache.update(node, value);
+    if (this.map[key]) {
+        var node = this.map[key];
+        node.value = value;
+        this.moveToHead(node);
     } else {
-        if (this.length == this.capacity) {
-            var node = this.cache.pop();
-            this.map.delete(node.key);
-            this.length--;
+        if (this.length < this.capacity) {
+            var node = this.headInsert(key, value);
+            this.map[key]=node;
+        } else {
+            var node=this.tail.prev;
+            delete this.map[node.key];
+            node.key = key;
+            node.value = value;
+            this.moveToHead(node);
+            this.map[key]= node;
         }
-        var node = this.cache.unshift(key, value);
-        this.map.set(key, node);
-        this.length++;
     }
 };
 
